@@ -1,0 +1,62 @@
+
+\documentclass[border=3pt,tikz]{standalone}
+\usepackage{tikz}
+
+\makeatletter
+
+\def\venn@strip#1#2\venn@STOP{%
+  \def\venn@next{#1}%
+  \gdef\venn@rest{#2}%
+}
+
+\newcommand{\venn}[1]{%
+\begin{tikzpicture}
+\coordinate (A) at (0,0);
+\coordinate (B) at (2,0);
+\coordinate (C) at (1,{sqrt(3)});
+\coordinate (S-SE) at (5,-3);
+\coordinate (S-NW) at (-3,{sqrt(3)+3});
+  \edef\venn@rest{#100000000}%
+  \foreach \i in {0,...,7} {
+  \begin{scope}[even odd rule]
+    \expandafter\venn@strip\venn@rest\venn@STOP
+    \ifnum\venn@next=1\relax
+    \pgfmathparse{Mod(\i,2) == 1 ? "(S-SE) rectangle (S-NW)" : ""}
+    \path[clip] \pgfmathresult (A) circle[radius=2];
+    \pgfmathparse{Mod(floor(\i/2),2) == 1 ? "(S-SE) rectangle (S-NW)" : ""}
+    \path[clip] \pgfmathresult (B) circle[radius=2];
+    \pgfmathparse{Mod(floor(\i/4),2) == 1 ? "(S-SE) rectangle (S-NW)" : ""}
+    \path[clip] \pgfmathresult (C) circle[radius=2];
+    \fill[rounded corners,gray] (S-SE) rectangle (S-NW);
+    \fi
+  \end{scope}
+  }
+    \draw[ultra thick] (A) circle[radius=2];
+    \draw[ultra thick] (B) circle[radius=2];
+    \draw[ultra thick] (C) circle[radius=2];
+    \node at (1,3) {$A$};
+    \node at (-1,-1) {$B$};
+    \node at (3,-1) {$C$};
+    \draw[ultra thick,rounded corners] (S-SE) rectangle (S-NW);
+\end{tikzpicture}
+\newpage
+}
+
+\makeatother
+
+\newcommand{\allvendiagrams}{
+% To generate the lot:
+\foreach \j in {0,...,255} {
+  \def\venncode{}
+  \foreach \k in {0,...,7} {
+    \pgfmathparse{Mod(floor(\j/2^\k),2) == 1 ? "\venncode1" : "\venncode0"}
+    \global\let\venncode=\pgfmathresult
+  }
+  \venn{\venncode}
+
+}
+}
+
+\begin{document}
+\allvendiagrams
+\end{document}
